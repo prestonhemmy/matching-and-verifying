@@ -1,18 +1,23 @@
 import itertools
 import numpy as np
 
+
+"""
+Input file parsing, output file writing, and Gale-Shapely implementation.
+"""
+
 def parse_input(filename):
     """Reads a multiline input file containing space-separated integers."""
 
     try:
         with (open(filename, 'r') as f):
             n = int(f.readline().strip())                                   # extract leading int
-            data = np.genfromtxt(itertools.islice(f, 0, None), dtype=int)   # extract preference rankings
+            data = np.genfromtxt(itertools.islice(f, 0, None), ndmin=2, dtype=int)   # extract preference rankings
 
             if len(data) != 2 * n:
                 raise IOError(f"File {filename} has incorrect number of rows")
 
-            return data.tolist()[:len(data) // 2], data.tolist()[len(data) // 2:]
+            return data.tolist()[:n], data.tolist()[n:]
 
     except IOError as e:
         print(f"Error reading file: {e}")
@@ -58,11 +63,10 @@ def match(hospital_prefs, student_prefs):
 
         print(f"Hospital h = {h + 1}")
         print(f"Highest-ranked student s = {s + 1} has not yet been proposed to by h")
-        print(f"Updated proposed list: {proposed}")
 
         # check if 's' is free
         if s in free_students:
-            res.append([h, s])
+            res.append([h + 1, s + 1])  # convert back to 1-indexed for file output
             free_students.remove(s)
 
             print(f"Student {s + 1} is now paired with hospital {h + 1}")
@@ -70,8 +74,8 @@ def match(hospital_prefs, student_prefs):
         # o.w. 's' is currently paired with 'h_old'
         else:
             for hos, stu in res:
-                if stu == s:
-                    h_old = hos
+                if stu - 1 == s:
+                    h_old = hos - 1
 
             print(f"Hospital {h_old + 1} is currently paired with student {s + 1}")
 
@@ -83,8 +87,8 @@ def match(hospital_prefs, student_prefs):
             # o.w. 's' prefers 'h' to 'h_old'
             else:
                 print(f"Student {s + 1} prefers new partner, hospital {h + 1} to hospital {h_old + 1} since student {s + 1} has the preference list {student_prefs[s]} (0-indexed)")
-                res.remove([h_old, s])
-                res.append([h, s])
+                res.remove([h_old + 1, s + 1])
+                res.append([h + 1, s + 1])
                 free_hospitals.add(h_old)   # 'h_old' becomes free again
 
         print("Set status:")
@@ -95,36 +99,5 @@ def match(hospital_prefs, student_prefs):
 
     return res
 
-
-
-
-
-
-
-
-
-# FOR TESTING FUNCTION IMPLEMENTATIONS
-def main():
-    my_list = parse_input("../data/test1.in")
-    # print(my_list)
-
-    if my_list:
-        hospital_prefs = my_list[0]
-        student_prefs = my_list[1]
-
-        res = match(hospital_prefs, student_prefs)
-
-        print(res)
-
-    # student_prefs = [[7, 8, 9], [1, 2, 3], [4, 5, 6]]
-    # h = 2
-    # h_old = 1
-    # s = 1
-    # if student_prefs[s].index(h_old) > student_prefs[s].index(h):
-    #     print(f"Student {s + 1} prefers previous partner, hospital {h_old + 1} to hospital {h + 1} since student {s + 1} has the preference list {student_prefs[s]} (0-indexed)")
-    # else:
-    #     print(f"Student {s + 1} prefers new partner, hospital {h + 1} to hospital {h_old + 1} since student {s + 1} has the preference list {student_prefs[s]} (0-indexed)")
-
-
-if __name__ == "__main__":
-    main()
+def save(matching, filename):
+    np.savetxt(filename, matching, fmt="%d")
