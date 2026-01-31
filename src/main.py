@@ -2,7 +2,9 @@ import os
 import glob
 import sys
 from matcher import *
+from verifier import verify
 
+def main():
 
 """
 Main entry point for project. Triggers matching engine and verifier.
@@ -54,8 +56,12 @@ def main():
 
         print("Output saved to " + filename[:-3] + ".out")
 
-    # Matching verification
-    # TODO
+        # Matching verification
+        print("=" * 50)
+        print("Verifying matching...")
+
+        result, success = verify(input_path, output_path)
+        print(result)
 
 
 
