@@ -6,6 +6,16 @@ from verifier import verify
 
 def main():
 
+"""
+Main entry point for project. Triggers matching engine and verifier.
+
+USAGE: 
+    For running the G-S algorithm/verifier on a specific input file,
+    `python src/main.py <filename>`
+"""
+
+def main():
+
     # Set up
     base_dir = os.path.dirname(os.path.abspath(__file__))
     proj_root = os.path.dirname(base_dir)
